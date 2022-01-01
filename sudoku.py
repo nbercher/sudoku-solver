@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
-"""
-sudoku.py - Sudoku solver
+"""sudoku.py - Sudoku (naive) solver.
 
 Nicolas Bercher, nicolas.bercher@altihydrolab.fr, 2022-01-01.
 
 This script is the property of Nicolas Bercher, AltiHydroLab.fr.
 All rights reserved.
+
 """
 
 import os
@@ -53,8 +53,8 @@ class Grid():
         """Get the set of possible values for an unset element of element coordinates (l, c)."""
         return BLOCK_FULL - self.getelementclues(l, c)
 
-    def itermissingitems(self): # TODO "element" or "item"?
-        """Iterate over the (l,c) coordinates of missing element(s)."""
+    def iterunsolved(self):
+        """Iterate over the (l,c) coordinates of the unsolved element(s)."""
         for l_, c_ in zip(*numpy.where(self.grid == 0)):
             yield l_, c_
 
@@ -65,7 +65,7 @@ class Grid():
         call to self.getunsolved().
 
         """
-        coords_iter = self.itermissingitems() if od is None else od.keys()
+        coords_iter = self.iterunsolved() if od is None else od.keys()
         unsolved_m = [((l_, c_), self.getelementpossiblevalues(l_, c_)) for l_, c_ in list(coords_iter)]
         arg_rank = numpy.argsort(numpy.array([len(v_) for _, v_ in unsolved_m]))
         unsolved_sorted_m = numpy.array(unsolved_m, dtype=object)[arg_rank]
@@ -73,15 +73,17 @@ class Grid():
         # import ipdb; ipdb.set_trace()
         return unsolved_od
 
-    def solve_naive(self):
-        """Naive sorting: assume that, for each iteration, one missing element
-        at least is directly solvable (i.e., len(getelementpossiblevalues() == 1)."""
-        # Sort missing elements by rank = nb possible values:
+    def solve_naive(self, verbose=0):
+        """Naive Sudoku solver: assume that, for each iteration, one unsolved
+        element at least is directly solvable (i.e., len(getelementpossiblevalues() == 1).
+
+        """
+        # Sort unsolved elements by rank = nb possible values:
         unsolved_od = self.getunsolved()
         # Recursive solving:
-        self._solve_naive2_iter(unsolved_od)
+        self._solve_naive_iter(unsolved_od, verbose=verbose)
 
-    def _solve_naive2_iter(self, unsolved_od):
+    def _solve_naive_iter(self, unsolved_od, verbose=0):
         if len(unsolved_od) == 0:
             return
         for k_ in list(unsolved_od.keys()):
@@ -89,18 +91,20 @@ class Grid():
             if len(pv_) == 1:
                 l_, c_ = k_
                 self.grid[l_, c_] = list(unsolved_od.pop(k_))[0]
-                print("Missing = %d" % (numpy.sum(self.grid==0),))
+                if verbose > 0:
+                    print("Unsolved = %d" % (numpy.sum(self.grid==0),))
             else:
                 break
         # Get updated unsolved_od and proceed:
         unsolved_od_next = self.getunsolved(od=unsolved_od)
-        self._solve_naive2_iter(unsolved_od_next)
+        self._solve_naive_iter(unsolved_od_next, verbose=verbose)
 
 
-def solve(grid):
+def solve(arr):
     """Solve Sudoku grid."""
-    ...
-    return Grid(grid).solve()
+    grid = Grid(grid2int(arr))
+    grid.solve_naive()
+    return grid.grid
 
 
 def read(filepath):
@@ -109,12 +113,12 @@ def read(filepath):
     return arr
 
 
-def check_grid(grid):
+def check_grid(arr):
     """Check the grid post reading."""
-    if numpy.prod(grid_in.shape) != GRID_SIZE*GRID_SIZE:
-        raise ValueError("Wrong input grid size %dx%d, but %dx%d is required." % grid_in.shape + (GRID_SIZE,GRID_SIZE,))
-    if (GRID_SIZE*GRID_SIZE - numpy.sum(numpy.isnan(grid_in))) < MIN_CLUES_9x9:
-        raise ValueError("Impossible to solve Sudoku grid of size %dx%d with less than 17 clues." % grid_in.shape)
+    if numpy.prod(arr.shape) != GRID_SIZE*GRID_SIZE:
+        raise ValueError("Wrong input grid size %dx%d, but %dx%d is required." % arr.shape + (GRID_SIZE,GRID_SIZE,))
+    if (GRID_SIZE*GRID_SIZE - numpy.sum(numpy.isnan(arr))) < MIN_CLUES_9x9:
+        raise ValueError("Impossible to solve Sudoku grid of size %dx%d with less than 17 clues." % arr.shape)
 
 
 def grid2int(arr):
@@ -130,16 +134,19 @@ def write(filepath, arr):
     print(arr)
 
 
+def main(filepath_in):
+    # Process input file:
+    arr_in = read(filepath_in)
+    check_grid(arr_in)
+    # Solve:
+    arr_out = solve(arr_in)
+    # Process output file:
+    filepath_out = os.extsep.join([filepath_in, 'solved'])
+    write(filepath_out, arr_out)
+
+
 if __name__ == '__main__':
     if len(sys.argv) != 2:
         print("Usage: python3 -c solve.py file.csv")
         exit()
-    # Process input file:
-    filepath_in = sys.argv[1]
-    grid_in = read(filepath_in)
-    check_grid(grid_in)
-    # Solve:
-    grid_out = solve(grid_in)
-    # Process output file:
-    filepath_out = os.extsep.join([filepath_in, 'solved'])
-    write(filepath_out, grid_out)
+    main(sys.argv[1])
