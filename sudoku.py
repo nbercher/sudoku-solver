@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 # -*- coding: utf-8 -*-
 
 """sudoku.py - Sudoku (naive) solver.
@@ -146,6 +148,6 @@ def main(filepath_in):
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
-        print("Usage: python3 -c solve.py file.csv")
+        print("Usage: ./solve.py file.csv")
         exit()
     main(sys.argv[1])
