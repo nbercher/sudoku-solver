@@ -131,7 +131,6 @@ def write(filepath, arr):
     """Write CSV file from a Numpy array, cast to integer before actual write."""
     arr = grid2int(arr)
     numpy.savetxt(filepath, arr, delimiter=',', fmt="%d")
-    print(arr)
 
 
 def main(filepath_in):
