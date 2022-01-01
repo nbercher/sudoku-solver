@@ -72,7 +72,6 @@ class Grid():
         arg_rank = numpy.argsort(numpy.array([len(v_) for _, v_ in unsolved_m]))
         unsolved_sorted_m = numpy.array(unsolved_m, dtype=object)[arg_rank]
         unsolved_od = collections.OrderedDict(unsolved_sorted_m)
-        # import ipdb; ipdb.set_trace()
         return unsolved_od
 
     def solve_naive(self, verbose=0):
