@@ -6,8 +6,7 @@
 
 Nicolas Bercher, nicolas.bercher@altihydrolab.fr, 2022-01-01.
 
-This script is the property of Nicolas Bercher, AltiHydroLab.fr.
-All rights reserved.
+This script is distributed under the terms of the GPL v2 license.
 
 """
 
