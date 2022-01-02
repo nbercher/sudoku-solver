@@ -92,24 +92,26 @@ class Grid():
         unsolved_od = self.getunsolved(coords=coords)
         _check_solvable(unsolved_od)
         if len(unsolved_od) == 0:
+            if verbose > 0:
+                print("Sudoku solved.")
             return
         for k_ in list(unsolved_od.keys()):
             pv_ = unsolved_od[k_]
             if len(pv_) == 1:
                 l_, c_ = k_
-                self.grid[l_, c_] = list(unsolved_od.pop(k_))[0]
-                if verbose > 0:
+                if verbose > 1:
                     print("Unsolved = %d" % (numpy.sum(self.grid==0),))
+                self.grid[l_, c_] = list(unsolved_od.pop(k_))[0]
             else:
                 break
         # Get updated unsolved_od and proceed:
         self.solve_naive(coords=list(unsolved_od.keys()), verbose=verbose)
 
 
-def solve(arr):
+def solve(arr, verbose=0):
     """Solve Sudoku grid."""
     grid = Grid(grid2int(arr))
-    grid.solve_naive()
+    grid.solve_naive(verbose=verbose)
     return grid.grid
 
 
@@ -139,12 +141,12 @@ def write(filepath, arr):
     numpy.savetxt(filepath, arr, delimiter=',', fmt="%d")
 
 
-def main(filepath_in):
+def main(filepath_in, verbose=0):
     # Process input file:
     arr_in = read(filepath_in)
     check_grid(arr_in)
     # Solve:
-    arr_out = solve(arr_in)
+    arr_out = solve(arr_in, verbose=verbose)
     # Process output file:
     filepath_out = os.extsep.join([filepath_in, 'solved'])
     write(filepath_out, arr_out)
