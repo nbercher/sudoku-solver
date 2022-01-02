@@ -59,31 +59,28 @@ class Grid():
         for l_, c_ in zip(*numpy.where(self.grid == 0)):
             yield l_, c_
 
-    def getunsolved(self, od=None):
+    def getunsolved(self, coords=None):
         """Get an OrderedDict of the unsolved elements {(l,c): set(possible_values)}.
 
         If od is not None, assume this is the result of the previous
         call to self.getunsolved().
 
         """
-        coords_iter = self.iterunsolved() if od is None else od.keys()
-        unsolved_m = [((l_, c_), self.getelementpossiblevalues(l_, c_)) for l_, c_ in list(coords_iter)]
+        if coords is None:
+            coords = list(self.iterunsolved())
+        # Sort unsolved elements by rank (= Number of possible values):
+        unsolved_m = [((l_, c_), self.getelementpossiblevalues(l_, c_)) for l_, c_ in coords]
         arg_rank = numpy.argsort(numpy.array([len(v_) for _, v_ in unsolved_m]))
         unsolved_sorted_m = numpy.array(unsolved_m, dtype=object)[arg_rank]
         unsolved_od = collections.OrderedDict(unsolved_sorted_m)
         return unsolved_od
 
-    def solve_naive(self, verbose=0):
+    def solve_naive(self, coords=None, verbose=0):
         """Naive Sudoku solver: assume that, for each iteration, one unsolved
         element at least is directly solvable (i.e., len(getelementpossiblevalues() == 1).
 
         """
-        # Sort unsolved elements by rank = nb possible values:
-        unsolved_od = self.getunsolved()
-        # Recursive solving:
-        self._solve_naive_iter(unsolved_od, verbose=verbose)
-
-    def _solve_naive_iter(self, unsolved_od, verbose=0):
+        unsolved_od = self.getunsolved(coords=coords)
         if len(unsolved_od) == 0:
             return
         for k_ in list(unsolved_od.keys()):
@@ -96,8 +93,7 @@ class Grid():
             else:
                 break
         # Get updated unsolved_od and proceed:
-        unsolved_od_next = self.getunsolved(od=unsolved_od)
-        self._solve_naive_iter(unsolved_od_next, verbose=verbose)
+        self.solve_naive(coords=list(unsolved_od.keys()), verbose=verbose)
 
 
 def solve(arr):
