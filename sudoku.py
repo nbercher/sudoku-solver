@@ -86,7 +86,7 @@ class Grid():
 
     def solve_naive(self, coords=None, verbose=0):
         """Naive Sudoku solver: assume that, for each iteration, one unsolved
-        element at least is directly solvable (i.e., len(getelementpossiblevalues() == 1).
+        element at least is directly solvable, i.e., len(self.getelementpossiblevalues()) == 1
 
         """
         unsolved_od = self.getunsolved(coords=coords)
@@ -101,6 +101,7 @@ class Grid():
                 l_, c_ = k_
                 if verbose > 1:
                     print("Unsolved = %d" % (numpy.sum(self.grid==0),))
+                # Inplace update of the Sudoku grid:
                 self.grid[l_, c_] = list(unsolved_od.pop(k_))[0]
             else:
                 break
