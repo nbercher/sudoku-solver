@@ -4,11 +4,11 @@ A (naive) Sudoku game solver written in Python and Numpy.
 
 ## Test the solver
 
-```python3 sudoku.py test/grid_in.csv```
+```python3 sudoku.py sample/grid_in.csv```
 
 or:
 
-```./sudoku.py test/grid_in.csv```
+```./sudoku.py sample/grid_in.csv```
 
 ## Run the solver on your CSV file
 
