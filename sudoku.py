@@ -22,6 +22,15 @@ MIN_CLUES_9x9 = 17
 BLOCK_FULL = set(list(numpy.arange(1, GRID_SIZE+1)))
 
 
+def _check_solvable(unsolved_od):
+    """Raise an exception if the Sudoku grid is not solvable."""
+    if len(unsolved_od) == 0:
+        return
+    coords_0 = list(unsolved_od.keys())[0]
+    if len(unsolved_od[coords_0]) > 1:
+        raise ValueError("The naive algorithm is not able to solve this Sudoku grid.")
+
+
 class Grid():
     """Sudoku grid, 9x9 size."""
 
@@ -81,6 +90,7 @@ class Grid():
 
         """
         unsolved_od = self.getunsolved(coords=coords)
+        _check_solvable(unsolved_od)
         if len(unsolved_od) == 0:
             return
         for k_ in list(unsolved_od.keys()):
